@@ -77,6 +77,7 @@ class DataProcessor(object):
         lines = []
         for line in reader:
                 lines.append(line)
+        print(lines)
         return lines
 
 
