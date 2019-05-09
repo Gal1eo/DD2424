@@ -94,7 +94,8 @@ class AugProcessor(DataProcessor):
     def _create_examples(self, lines, set_type):
         """Creates examples for the training and dev sets."""
         examples = []
-        for i in range(len(lines)):
+        print(lines.shape)
+        for i in range(lines):
             guid ="%s-%s" % (set_type, i)
             text_a = lines['sentence'][0]
             label = lines['label'][-1]
