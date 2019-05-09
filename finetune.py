@@ -93,12 +93,15 @@ class AugProcessor(DataProcessor):
 
     def _create_examples(self, lines, set_type):
         """Creates examples for the training and dev sets."""
-
-        lines.apply(lambda x: InputExample(guid=None, # Globally unique ID for bookkeeping, unused in this example
-                                        text_a=x['sentence'],
-                                        text_b=None,
-                                        label=x['label']), axis=1)
-        return lines
+        examples = []
+        for i in range(len(lines)):
+            guid ="%s-%s" % (set_type, i)
+            text_a = lines['sentence'][0]
+            label = lines['label'][-1]
+            examples.append(
+                InputExample(guid, text_a, label)
+            )
+        return examples
 
 
 def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer):
