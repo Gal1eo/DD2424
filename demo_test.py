@@ -38,7 +38,7 @@ tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 text = "you are black"
 target = "black"
 tokenized_text = tokenizer.tokenize(text)
-
+tokenized_text = '[CLS]'+ tokenized_text + '[SEP]'
 # Mask a token that we will try to predict back with `BertForMaskedLM`
 masked_index = tokenized_text.index(target)
 tokenized_text[masked_index] = '[MASK]'
@@ -48,8 +48,8 @@ indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
 # Define sentence A and B indices associated to 1st and 2nd sentences (see paper)
 segments_ids = [1] * len(tokenized_text)
 # this is for the dummy first sentence.
-segments_ids[0] = 0
-segments_ids[1] = 0
+#segments_ids[0] = 0
+#segments_ids[1] = 0
 
 # Convert inputs to PyTorch tensors
 tokens_tensor = torch.tensor([indexed_tokens])
