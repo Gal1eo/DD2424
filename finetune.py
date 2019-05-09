@@ -113,7 +113,7 @@ class AugProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            if i==0:
+            if i==1:
                 continue
             guid ="%s-%s" % (set_type, i)
             text_a = line[1][0]
@@ -301,7 +301,7 @@ def run_aug(args, save_every_epoch=False):
     num_train_steps = int(len(train_examples) / args.train_batch_size * args.num_train_epochs)
 
     model = BertForMaskedLM.from_pretrained(args.bert_model, cache_dir=PYTORCH_PRETRAINED_BERT_CACHE)
-    #model.cuda()
+    model.cuda()
 
     # Prepare optimizer
     param_optimizer = list(model.named_parameters())
