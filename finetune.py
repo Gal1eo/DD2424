@@ -71,12 +71,13 @@ class DataProcessor(object):
     @classmethod
     def _read_csv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
-        with open(input_file, "r", errors='ignore') as f:
-            reader = csv.reader(f, delimiter=",", quotechar=quotechar)
-            lines = []
-            for line in reader:
-                lines.append(line)
-            return lines
+        #with open(input_file, "r", errors='ignore') as f:
+            #reader = csv.reader(f, delimiter=",", quotechar=quotechar)
+        reader = pd.read_csv(u'inputfile')
+        lines = []
+        for line in reader:
+            lines.append(line)
+        return lines
 
 
 class AugProcessor(DataProcessor):
