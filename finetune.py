@@ -101,12 +101,14 @@ class AugProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            guid ="%s-%s" % (set_type, i)
-            text_a = line['sentence'][0]
-            label = line['label'][-1]
-            examples.append(
-                InputExample(guid, text_a, label)
-            )
+            if i==0:
+                continue
+                guid ="%s-%s" % (set_type, i)
+                text_a = line[0]
+                label = line[-1]
+                examples.append(
+                    InputExample(guid, text_a, label)
+                )
         return examples
 
 
