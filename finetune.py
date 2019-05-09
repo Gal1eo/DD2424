@@ -71,11 +71,11 @@ class DataProcessor(object):
     @classmethod
     def _read_csv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
-        with open(input_file, "r", errors='ignore') as f:
-            reader = csv.reader(f, delimiter=",", quotechar=quotechar)
-            #reader = pd.read_csv(r'/datasets/toxic')
-            lines = []
-            for line in reader:
+        data = open(input_file)
+            #reader = csv.reader(f, delimiter=",", quotechar=quotechar)
+        reader = pd.read_csv(data)
+        lines = []
+        for line in reader:
                 lines.append(line)
         return lines
 
