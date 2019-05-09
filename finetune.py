@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import random
+import csv
 
 import numpy as np
 import pandas as pd
@@ -70,11 +71,12 @@ class DataProcessor(object):
     @classmethod
     def _read_csv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
-        reader = pd.read_csv(input_file)
-        lines = []
-        for line in reader:
-            lines.append(line)
-        return lines
+        with open(input_file, "r") as f:
+            reader = csv.reader(f, delimiter=",", quotechar=quotechar)
+            lines = []
+            for line in reader:
+                lines.append(line)
+            return lines
 
 
 class AugProcessor(DataProcessor):
