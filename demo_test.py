@@ -35,8 +35,8 @@ model.cuda()
 #model = BertForMaskedLM.from_pretrained("bert-base-uncased")
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-text = "you are a loser"
-target = "loser"
+text = "you piece of shit"
+target = "shit"
 tokenized_text = tokenizer.tokenize(text)
 
 # Mask a token that we will try to predict back with `BertForMaskedLM`
