@@ -22,6 +22,7 @@ from pytorch_pretrained_bert.optimization import BertAdam
 from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 
 # Load fine-tuned bertmask model
+
 def load_model(model_name):
     weights_path = os.path.join(PYTORCH_PRETRAINED_BERT_CACHE, model_name)
     model = torch.load(weights_path)
@@ -29,11 +30,12 @@ def load_model(model_name):
 
 cbert_name = "{}/BertForMaskedLM_{}_epoch_10".format("toxic", "toxic")
 model = load_model(cbert_name)
+
 model.cuda()
+#model = BertForMaskedLM.from_pretrained("bert-base-uncased")
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-tokenizer = BertTokenizer.from_pretrained("bert-base-cased", do_lower_case=True)
-
-text = "dummy. you are a loser"
+text = "you are a loser"
 target = "loser"
 tokenized_text = tokenizer.tokenize(text)
 
@@ -52,8 +54,7 @@ segments_ids[1] = 0
 # Convert inputs to PyTorch tensors
 tokens_tensor = torch.tensor([indexed_tokens])
 segments_tensors = torch.tensor([segments_ids])
-# Load pre-trained model (weights)
-model = BertForMaskedLM.from_pretrained("bert-base-uncased")
+
 model.eval()
 
 # Predict all tokens
