@@ -80,6 +80,7 @@ class DataProcessor(object):
         lines = []
         for line in reader:
                 lines.append(line)
+            
         print(reader)
         return lines
 
