@@ -71,7 +71,7 @@ class DataProcessor(object):
     @classmethod
     def _read_csv(cls, input_file, quotechar=None):
         """Reads a tab separated value file."""
-        with open(input_file, "rb") as f:
+        with open(input_file, "r", errors='ignore') as f:
             reader = csv.reader(f, delimiter=",", quotechar=quotechar)
             lines = []
             for line in reader:
