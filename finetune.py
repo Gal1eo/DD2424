@@ -9,8 +9,7 @@ import csv
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import (DataLoader, RandomSampler,
-                              TensorDataset)
+from torch.utils.data import DataLoader, RandomSampler, TensorDataset, SequentialSampler
 from tqdm import trange
 
 from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
@@ -69,19 +68,26 @@ class DataProcessor(object):
         raise NotImplementedError()
 
     @classmethod
-    def _read_csv(cls, input_file, quotechar=None):
+    def _read_csv(cls, input_file, quotechar='"'):
         """Reads a tab separated value file."""
-        DIR = os.getcwd()
-        input_file = os.path.join(DIR,input_file)
+        # DIR = os.getcwd()
+        # input_file = os.path.join(DIR,input_file)
         #data = open(input_file,errors='ignore')
             #reader = csv.reader(f, delimiter=",", quotechar=quotechar)
 
-        reader = pd.read_csv(input_file)
-        lines = []
-        for line in reader:
-                lines.append(line)
-            
-        print(reader)
+        # reader = pd.read_csv(input_file)
+        with open(input_file,"r",encoding='UTF-8') as f:
+            reader = csv.reader(
+                f,
+                delimiter=",",
+                quotechar=quotechar,
+                doublequote=True,
+                skipinitialspace=False,
+                )
+            lines = []
+            for line in enumerate(reader):
+                    lines.append(line)
+            # print(lines)
         return lines
 
 
@@ -96,7 +102,7 @@ class AugProcessor(DataProcessor):
     def get_dev_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+            self._read_csv(os.path.join(data_dir, "dev.tsv")), "dev")
 
     def get_labels(self, name):
         """add your dataset here"""
@@ -109,12 +115,12 @@ class AugProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             if i==0:
                 continue
-                guid ="%s-%s" % (set_type, i)
-                text_a = line[0]
-                label = line[-1]
-                examples.append(
-                    InputExample(guid, text_a, label)
-                )
+            guid ="%s-%s" % (set_type, i)
+            text_a = line[1][0]
+            text_b = None
+            label = line[1][-1]
+            examples.append(
+                InputExample(guid, text_a, text_b, label))
         return examples
 
 
@@ -128,6 +134,7 @@ def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer
     masked_lm_prob = 0.15
     rng = random.Random(123)
     max_predictions_per_seq = 20
+    a = examples
     for (ex_index, example) in enumerate(examples):
         # if ex_index % 10000 == 0:
         #    logger.info("Writing example %d of %d" % (ex_index, len(examples)))
@@ -190,6 +197,7 @@ def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer
 
         # Zero-pad up to the sequence length.
         padding = [0] * (max_seq_length - len(input_ids))
+        init_ids += padding
         input_ids += padding
         input_mask += padding
         segment_ids += padding
@@ -293,7 +301,7 @@ def run_aug(args, save_every_epoch=False):
     num_train_steps = int(len(train_examples) / args.train_batch_size * args.num_train_epochs)
 
     model = BertForMaskedLM.from_pretrained(args.bert_model, cache_dir=PYTORCH_PRETRAINED_BERT_CACHE)
-    model.cuda()
+    #model.cuda()
 
     # Prepare optimizer
     param_optimizer = list(model.named_parameters())
@@ -320,6 +328,7 @@ def run_aug(args, save_every_epoch=False):
     all_segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long)
     all_masked_lm_labels = torch.tensor([f.masked_lm_labels for f in train_features], dtype=torch.long)
     train_data = TensorDataset(all_init_ids, all_input_ids, all_input_mask, all_segment_ids, all_masked_lm_labels)
+    print(train_data)
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
 
