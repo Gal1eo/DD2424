@@ -73,7 +73,7 @@ class DataProcessor(object):
         """Reads a tab separated value file."""
         with open(input_file, "r", error='ignore') as f:
             #reader = csv.reader(f, delimiter=",", quotechar=quotechar)
-            input_file = os.path.join("../",input_file)
+            input_file = os.path.join("..",input_file)
             reader = pandas.read_csv(input_file)
             lines = []
             for line in reader:
