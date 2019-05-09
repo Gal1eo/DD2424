@@ -38,7 +38,7 @@ tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 text = "you are black"
 target = "black"
 tokenized_text = tokenizer.tokenize(text)
-tokenized_text = '[CLS]'+ tokenized_text + '[SEP]'
+tokenized_text =  tokenized_text
 # Mask a token that we will try to predict back with `BertForMaskedLM`
 masked_index = tokenized_text.index(target)
 tokenized_text[masked_index] = '[MASK]'
