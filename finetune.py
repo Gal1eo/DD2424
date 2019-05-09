@@ -88,6 +88,11 @@ class DataProcessor(object):
             for line in enumerate(reader):
                     lines.append(line)
             # print(lines)
+            del lines[0]
+            #a = len(lines)     #29003
+            #del lines[len(lines)-1]
+            b = lines[len(lines)-1]
+            #print(b)
         return lines
 
 
@@ -113,8 +118,6 @@ class AugProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            if i==1:
-                continue
             guid ="%s-%s" % (set_type, i)
             text_a = line[1][0]
             text_b = None
