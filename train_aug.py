@@ -345,7 +345,6 @@ def run_aug(args, save_every_epoch=False):
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
 
-    model.train()
     save_model_dir = os.path.join(PYTORCH_PRETRAINED_BERT_CACHE, task_name)
     if not os.path.exists(save_model_dir):
         os.mkdir(save_model_dir)
