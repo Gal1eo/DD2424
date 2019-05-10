@@ -33,7 +33,7 @@ modelpath = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(modelpath)
 
 text = "dummy. what a asshole, he killed the transgender man."
-target = "killed"
+target = "asshole"
 tokenized_text = tokenizer.tokenize(text)
 
 # Mask a token that we will try to predict back with `BertForMaskedLM`
