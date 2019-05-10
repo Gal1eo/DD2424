@@ -32,7 +32,7 @@ def load_model(model_name):
 modelpath = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(modelpath)
 
-text = "dummy. what a asshole, he killed the transgender man."
+text = "dummy. what a asshole, he insulted the transgender man."
 target = "asshole"
 tokenized_text = tokenizer.tokenize(text)
 
