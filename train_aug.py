@@ -312,7 +312,7 @@ def run_aug(args, save_every_epoch=False):
         model = torch.load(weights_path)
         return model
 
-    MODEL_name = "{}/BertForMaskedLM_{}_epoch_10".format(task_name.lower(), task_name.lower())
+    MODEL_name = "{}/BertForMaskedLM_aug{}_epoch_3".format(task_name.lower(), task_name.lower())
     model = load_model(MODEL_name)
     model.cuda()
 
@@ -369,7 +369,7 @@ def run_aug(args, save_every_epoch=False):
             if (step + 1) % 50 == 0:
                 print("avg_loss: {}".format(avg_loss / 50))
                 avg_loss = 0
-
+        '''
         torch.cuda.empty_cache()
         shutil.copy(origin_train_path, save_train_path)
         save_train_file = open(save_train_path, 'a', encoding='UTF-8')
@@ -395,13 +395,14 @@ def run_aug(args, save_every_epoch=False):
                 pred_str = remove_wordpiece(pred_str)
                 csv_writer.writerow([pred_str, seg[0].item()])
             torch.cuda.empty_cache()
-
+        
         predctions = predictions.detach().cpu()
         torch.cuda.empty_cache()
         bak_train_path = os.path.join(args.output_dir, "train_epoch_{}.csv".format(e))
         shutil.copy(save_train_path, bak_train_path)
+        '''
         if save_every_epoch:
-            save_model_name = "BertForMaskedLM_aug" + task_name + "_epoch_" + str(e + 1)
+            save_model_name = "BertForMaskedLM_" + task_name + "_epoch_" + str(e + 1)
             save_model_path = os.path.join(save_model_dir, save_model_name)
             torch.save(model, save_model_path)
         else:
