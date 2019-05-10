@@ -49,7 +49,7 @@ segments_ids[0] = 0
 segments_ids[1] = 0
 
 # Convert inputs to PyTorch tensors
-torch.tensor.to('cuda')
+torch.tensor = torch.tensor.to('cuda')
 
 tokens_tensor = torch.tensor([indexed_tokens])
 segments_tensors = torch.tensor([segments_ids])
