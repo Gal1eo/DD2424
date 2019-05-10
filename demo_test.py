@@ -31,53 +31,55 @@ def load_model(model_name):
 # Load pre-trained model tokenizer (vocabulary)
 modelpath = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(modelpath)
+max_seq_length = 128
+text_a = "what a stupid person, he is from america."
+target = "stupid"
+token_target = tokenizer.tokenize(target)
+token_a = tokenizer.tokenize(text_a)
+tokens = ["[CLS]"] + token_a + ["[SEP]"]
+label_id = 1
+segment_ids = [label_id] * len(tokens)
+masked_lm_labels = [-1]*max_seq_length
 
-text = "dummy. what a asshole, he insulted the transgender man."
-target = "transgender"
-tokenized_text = tokenizer.tokenize(text)
-
+output_tokens = list(tokens)
+masked_index = tokens.index(target)
+masked_lm_labels[masked_index] = tokenizer.convert_tokens_to_ids([tokens[masked_index]])[0]
+output_tokens[masked_index] = '[MASK]'
 # Mask a token that we will try to predict back with `BertForMaskedLM`
-masked_index = tokenized_text.index(target)
-tokenized_text[masked_index] = '[MASK]'
 
-# Convert token to vocabulary indices
-indexed_tokens = tokenizer.convert_tokens_to_ids(tokenized_text)
-# Define sentence A and B indices associated to 1st and 2nd sentences (see paper)
-segments_ids = [1] * len(tokenized_text)
-# this is for the dummy first sentence.
-segments_ids[0] = 0
-segments_ids[1] = 0
+init_ids = tokenizer.convert_tokens_to_ids(tokens)
+input_ids = tokenizer.convert_tokens_to_ids(output_tokens)
 
-# Convert inputs to PyTorch tensors
+input_mask = [1] * len(input_ids)
 
+    # Zero-pad up to the sequence length.
+padding = [0] * (max_seq_length - len(input_ids))
+init_ids += padding
+input_ids += padding
+input_mask += padding
+segment_ids += padding
 
-tokens_tensor = torch.tensor([indexed_tokens])
-segments_tensors = torch.tensor([segments_ids])
-tokens_tensor = tokens_tensor.to('cuda')
-segments_tensors = segments_tensors.to('cuda')
+assert len(init_ids) == max_seq_length
+assert len(input_ids) == max_seq_length
+assert len(input_mask) == max_seq_length
+assert len(segment_ids) == max_seq_length
 
+all_init_ids = torch.tensor([init_ids], dtype=torch.long)
+all_input_ids = torch.tensor([input_ids], dtype=torch.long)
+all_input_mask = torch.tensor([input_mask], dtype=torch.long)
+all_segment_ids = torch.tensor([segment_ids], dtype=torch.long)
 
 
 MODEL_name = "{}/BertForMaskedLM_aug{}_epoch_3".format('toxic', 'toxic')
-model = load_model(MODEL_name)
-model.cuda()
-#model = BertForMaskedLM.from_pretrained(modelpath)
+#model = load_model(MODEL_name)
+model = BertForMaskedLM.from_pretrained(modelpath)
+#model.cuda()
 model.eval()
 
-# Predict all tokens
-predictions = model(tokens_tensor, segments_tensors)
-predicted_index = torch.argmax(predictions[0, masked_index]).item()
-predicted_token = tokenizer.convert_ids_to_tokens([predicted_index])
+predictions = model(all_init_ids, all_segment_ids, all_input_mask)
 
-print("Original:", text)
-print("Masked:", " ".join(tokenized_text))
-
-print("Predicted token:", predicted_token)
-print("Other options:")
-# just curious about what the next few options look like.
-for i in range(10):
-    predictions[0,masked_index,predicted_index] = -11100000
-    predicted_index = torch.argmax(predictions[0, masked_index]).item()
-    predicted_token = tokenizer.convert_ids_to_tokens([predicted_index])
-    print(predicted_token)
-
+print(predictions)
+pred = torch.argsort(predictions)[:,-1]
+#id = pred
+str = tokenizer.convert_ids_to_tokens(27580)
+print(str)
