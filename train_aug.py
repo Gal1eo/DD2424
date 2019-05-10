@@ -345,7 +345,7 @@ def run_aug(args, save_every_epoch=False):
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
 
-    save_model_dir = os.path.join(args.output_dir, task_name)
+    save_model_dir = os.path.join("gs://tribal-drake-232415.appspot.com", task_name)
     if not os.path.exists(save_model_dir):
         os.mkdir(save_model_dir)
 
