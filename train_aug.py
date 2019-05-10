@@ -7,10 +7,11 @@ import random
 import csv
 
 import numpy as np
-import pandas as pd
 import torch
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset, SequentialSampler
+from torch.utils.data.distributed import DistributedSampler
 from tqdm import trange
+import shutil
 
 from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from pytorch_pretrained_bert.modeling import BertForMaskedLM
@@ -274,7 +275,7 @@ def main():
 
     args = parser.parse_args()
     print(args)
-    run_aug(args, save_every_epoch=False)
+    run_aug(args, save_every_epoch=True)
 
 
 def run_aug(args, save_every_epoch=False):
@@ -301,9 +302,18 @@ def run_aug(args, save_every_epoch=False):
     train_examples = None
     num_train_steps = None
     train_examples = processor.get_train_examples(args.data_dir)
+    dev_examples = processor.get_dev_examples(args.data_dir)
+    train_examples.extend(dev_examples)
     num_train_steps = int(len(train_examples) / args.train_batch_size * args.num_train_epochs)
 
-    model = BertForMaskedLM.from_pretrained(args.bert_model, cache_dir=PYTORCH_PRETRAINED_BERT_CACHE)
+    # Load fine-tuned model
+    def load_model(model_name):
+        weights_path = os.path.join(PYTORCH_PRETRAINED_BERT_CACHE,model_name)
+        model = torch.load(weights_path)
+        return model
+
+    MODEL_name = "{}/BertForMaskedLM_{}_epoch_10".format(task_name.lower(), task_name.lower())
+    model = load_model(MODEL_name)
     model.cuda()
 
     # Prepare optimizer
@@ -339,10 +349,17 @@ def run_aug(args, save_every_epoch=False):
     save_model_dir = os.path.join(PYTORCH_PRETRAINED_BERT_CACHE, task_name)
     if not os.path.exists(save_model_dir):
         os.mkdir(save_model_dir)
+
+    MASK_id = tokenizer.convert_tokens_to_ids('[MASK]')[0]
+    origin_train_path = os.path.join(args.output_dir, "train_origin.csv")
+    save_train_path = os.path.join(args.output_dir, "train.csv")
+    shutil.copy(origin_train_path, save_train_path)
+
     for e in trange(int(args.num_train_epochs), desc="Epoch"):
-        avg_loss = 0.
+        avg_loss = 0
 
         for step, batch in enumerate(train_dataloader):
+            model.train()
             batch = tuple(t.cuda() for t in batch)
             _, input_ids, input_mask, segment_ids, masked_ids = batch
             loss = model(input_ids, segment_ids, input_mask, masked_ids)
@@ -353,13 +370,39 @@ def run_aug(args, save_every_epoch=False):
             if (step + 1) % 50 == 0:
                 print("avg_loss: {}".format(avg_loss / 50))
                 avg_loss = 0
+
+        torch.cuda.empty_cache()
+        shutil.copy(origin_train_pat, save_train_path)
+        save_train_file = open(save_train_path, 'a', encoding='UTF-8')
+        csv_writer = csv.writer(save_train_file, delimiter=',')
+        for step, batch in enumerate(train_dataloader):
+            model.eval()
+            batch = tuple(t.cuda() for t in batch)
+            init_ids, _, input_mask, segment_ids, masked_ids = batch
+            input_lens = [sum(mask).item() for mask in input_mask]
+            masked_idx = np.squeeze([np.random.randint(0, 1, max(l//7, 2)) for l in input_lens])
+            for ids, idx in zip(init_ids, masked_idx):
+                ids[idx] = MASK_id
+            predictions = model(init_ids, segment_ids, input_mask)
+            for ids, idx, preds, seg in zip(init_ids, masked_idx, predictions, segment_ids):
+                pred = torch.argsort(preds)[:,-2][idx]
+                ids[idx] = pred
+                pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
+                pred_str = remove_wordpiece(pred_str)
+                csv_writer.writerow([pred_str, seg[0].item()])
+            torch.cuda.empty_cache()
+
+        predctions = predictions.detach().cpu()
+        torch.cuda.empty_cache()
+        bak_train_path = os.path.join(args.output_dir, "train_epoch_{}.csv".format(e))
+        shutil.copy(save_train_path, bak_train_path)
         if save_every_epoch:
-            save_model_name = "BertForMaskedLM_" + task_name + "_epoch_" + str(e + 1)
+            save_model_name = "BertForMaskedLM_aug" + task_name + "_epoch_" + str(e + 1)
             save_model_path = os.path.join(save_model_dir, save_model_name)
             torch.save(model, save_model_path)
         else:
             if (e + 1) % 10 == 0:
-                save_model_name = "BertForMaskedLM_" + task_name + "_epoch_" + str(e + 1)
+                save_model_name = "BertForMaskedLM_aug" + task_name + "_epoch_" + str(e + 1)
                 save_model_path = os.path.join(save_model_dir, save_model_name)
                 torch.save(model, save_model_path)
 
