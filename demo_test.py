@@ -51,13 +51,14 @@ segments_ids[1] = 0
 # Convert inputs to PyTorch tensors
 tokens_tensor = torch.tensor([indexed_tokens])
 segments_tensors = torch.tensor([segments_ids])
-# Load pre-trained model (weights)
-tokens_tensor.to('cuda')
-segments_tensors.to('cuda')
+
+
 
 MODEL_name = "{}/BertForMaskedLM_{}_epoch_10".format('toxic', 'toxic')
 model = load_model(MODEL_name)
 model.cuda()
+tokens_tensor.to('cuda')
+segments_tensors.to('cuda')
 model.eval()
 
 # Predict all tokens
