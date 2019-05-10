@@ -265,7 +265,7 @@ def main():
                         help="Total batch size for training.")
     parser.add_argument("--learning_rate", default=5e-5, type=float,
                         help="The initial learning rate for Adam.")
-    parser.add_argument("--num_train_epochs", default=10.0, type=float,
+    parser.add_argument("--num_train_epochs", default=3.0, type=float,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--warmup_proportion", default=0.1, type=float,
                         help="Proportion of training to perform linear learning rate warmup for. "
@@ -302,8 +302,8 @@ def run_aug(args, save_every_epoch=False):
     train_examples = None
     num_train_steps = None
     train_examples = processor.get_train_examples(args.data_dir)
-    dev_examples = processor.get_dev_examples(args.data_dir)
-    train_examples.extend(dev_examples)
+    #dev_examples = processor.get_dev_examples(args.data_dir)
+    #train_examples.extend(dev_examples)
     num_train_steps = int(len(train_examples) / args.train_batch_size * args.num_train_epochs)
 
     # Load fine-tuned model
@@ -385,6 +385,11 @@ def run_aug(args, save_every_epoch=False):
                 ids[idx] = MASK_id
             predictions = model(init_ids, segment_ids, input_mask)
             for ids, idx, preds, seg in zip(init_ids, masked_idx, predictions, segment_ids):
+                pred = torch.argsort(preds)[:,-1][idx]
+                ids[idx] = pred
+                pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
+                pred_str = remove_wordpiece(pred_str)
+                csv_writer.writerow([pred_str, seg[0].item()])
                 pred = torch.argsort(preds)[:,-2][idx]
                 ids[idx] = pred
                 pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
