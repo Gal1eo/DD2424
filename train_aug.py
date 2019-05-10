@@ -350,7 +350,7 @@ def run_aug(args, save_every_epoch=False):
     if not os.path.exists(save_model_dir):
         os.mkdir(save_model_dir)
 
-    MASK_id = tokenizer.convert_tokens_to_ids('[MASK]')[0]
+    MASK_id = tokenizer.convert_tokens_to_ids(['[MASK]'])[0]
     origin_train_path = os.path.join(args.output_dir, "train_origin.csv")
     save_train_path = os.path.join(args.output_dir, "train.csv")
     shutil.copy(origin_train_path, save_train_path)
