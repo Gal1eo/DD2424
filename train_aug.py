@@ -345,7 +345,7 @@ def run_aug(args, save_every_epoch=False):
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
 
-    save_model_dir = os.path.join("gs://tribal-drake-232415.appspot.com", task_name)
+    save_model_dir = os.path.join(PYTORCH_PRETRAINED_BERT_CACHE, task_name)
     if not os.path.exists(save_model_dir):
         os.mkdir(save_model_dir)
 
@@ -355,8 +355,8 @@ def run_aug(args, save_every_epoch=False):
     shutil.copy(origin_train_path, save_train_path)
 
     for e in trange(int(args.num_train_epochs), desc="Epoch"):
-        avg_loss = 0
 
+        avg_loss = 0
         for step, batch in enumerate(train_dataloader):
             model.train()
             batch = tuple(t.cuda() for t in batch)
@@ -369,7 +369,7 @@ def run_aug(args, save_every_epoch=False):
             if (step + 1) % 50 == 0:
                 print("avg_loss: {}".format(avg_loss / 50))
                 avg_loss = 0
-        '''
+
         torch.cuda.empty_cache()
         shutil.copy(origin_train_path, save_train_path)
         save_train_file = open(save_train_path, 'a', encoding='UTF-8')
@@ -379,7 +379,7 @@ def run_aug(args, save_every_epoch=False):
             batch = tuple(t.cuda() for t in batch)
             init_ids, _, input_mask, segment_ids, masked_ids = batch
             input_lens = [sum(mask).item() for mask in input_mask]
-            masked_idx = np.squeeze([np.random.randint(0, 1, max(l//7, 2)) for l in input_lens])
+            masked_idx = np.squeeze([np.random.randint(0, l, max(l//7, 2)) for l in input_lens])
             for ids, idx in zip(init_ids, masked_idx):
                 ids[idx] = MASK_id
             predictions = model(init_ids, segment_ids, input_mask)
