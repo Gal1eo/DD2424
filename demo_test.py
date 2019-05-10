@@ -58,7 +58,7 @@ segments_tensors = segments_tensors.to('cuda')
 
 
 
-MODEL_name = "{}/BertForMaskedLM_aug{}_epoch_3".format('toxic', 'toxic')
+MODEL_name = "{}/BertForMaskedLM_{}_epoch_3".format('toxic', 'toxic')
 model = load_model(MODEL_name)
 model.cuda()
 #model = BertForMaskedLM.from_pretrained(modelpath)
