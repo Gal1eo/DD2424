@@ -53,15 +53,15 @@ segments_ids[1] = 0
 
 tokens_tensor = torch.tensor([indexed_tokens])
 segments_tensors = torch.tensor([segments_ids])
-#tokens_tensor = tokens_tensor.to('cuda')
-#segments_tensors = segments_tensors.to('cuda')
+tokens_tensor = tokens_tensor.to('cuda')
+segments_tensors = segments_tensors.to('cuda')
 
 
 
-#MODEL_name = "{}/BertForMaskedLM_aug{}_epoch_3".format('toxic', 'toxic')
-#model = load_model(MODEL_name)
-#model.cuda()
-model = BertForMaskedLM.from_pretrained(modelpath)
+MODEL_name = "{}/BertForMaskedLM_aug{}_epoch_3".format('toxic', 'toxic')
+model = load_model(MODEL_name)
+model.cuda()
+#model = BertForMaskedLM.from_pretrained(modelpath)
 model.eval()
 
 # Predict all tokens
