@@ -400,7 +400,7 @@ def run_aug(args, save_every_epoch=False):
         torch.cuda.empty_cache()
         bak_train_path = os.path.join(args.output_dir, "train_epoch_{}.csv".format(e))
         shutil.copy(save_train_path, bak_train_path)
-        '''
+
         if save_every_epoch:
             save_model_name = "BertForMaskedLM_" + task_name + "_epoch_" + str(e + 1)
             save_model_path = os.path.join(save_model_dir, save_model_name)
