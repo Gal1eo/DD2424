@@ -372,7 +372,7 @@ def run_aug(args, save_every_epoch=False):
                 avg_loss = 0
 
         torch.cuda.empty_cache()
-        shutil.copy(origin_train_pat, save_train_path)
+        shutil.copy(origin_train_path, save_train_path)
         save_train_file = open(save_train_path, 'a', encoding='UTF-8')
         csv_writer = csv.writer(save_train_file, delimiter=',')
         for step, batch in enumerate(train_dataloader):
