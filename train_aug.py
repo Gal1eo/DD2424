@@ -70,13 +70,7 @@ class DataProcessor(object):
 
     @classmethod
     def _read_csv(cls, input_file, quotechar='"'):
-        """Reads a tab separated value file."""
-        # DIR = os.getcwd()
-        # input_file = os.path.join(DIR,input_file)
-        #data = open(input_file,errors='ignore')
-            #reader = csv.reader(f, delimiter=",", quotechar=quotechar)
-
-        # reader = pd.read_csv(input_file)
+        """Reads a comma separated value file."""
         with open(input_file,"r",encoding='UTF-8') as f:
             reader = csv.reader(
                 f,
@@ -88,12 +82,8 @@ class DataProcessor(object):
             lines = []
             for line in enumerate(reader):
                     lines.append(line)
-            # print(lines)
+            # delete label and sentence
             del lines[0]
-            #a = len(lines)     #29003
-            #del lines[len(lines)-1]
-            b = lines[len(lines)-1]
-            #print(b)
         return lines
 
 
@@ -140,9 +130,6 @@ def convert_examples_to_features(examples, label_list, max_seq_length, tokenizer
     max_predictions_per_seq = 20
     a = examples
     for (ex_index, example) in enumerate(examples):
-        # if ex_index % 10000 == 0:
-        #    logger.info("Writing example %d of %d" % (ex_index, len(examples)))
-
         tokens_a = tokenizer.tokenize(example.text_a)
         tokens_b = None
         if len(tokens_a) > max_seq_length - 2:  # maxlength = [cls]+token_length + [sep]
