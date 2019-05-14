@@ -342,7 +342,7 @@ def run_aug(args, save_every_epoch=False):
     shutil.copy(origin_train_path, save_train_path)
 
     for e in trange(int(args.num_train_epochs), desc="Epoch"):
-
+        '''
         avg_loss = 0
         for step, batch in enumerate(train_dataloader):
             model.train()
@@ -356,8 +356,8 @@ def run_aug(args, save_every_epoch=False):
             if (step + 1) % 50 == 0:
                 print("avg_loss: {}".format(avg_loss / 50))
                 avg_loss = 0
-
-        torch.cuda.empty_cache()
+        '''
+        #torch.cuda.empty_cache()
         shutil.copy(origin_train_path, save_train_path)
         save_train_file = open(save_train_path, 'a', encoding='UTF-8')
         csv_writer = csv.writer(save_train_file, delimiter=',')
@@ -381,10 +381,10 @@ def run_aug(args, save_every_epoch=False):
                 pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
                 pred_str = remove_wordpiece(pred_str)
                 csv_writer.writerow([pred_str, seg[0].item()])
-            torch.cuda.empty_cache()
+            #torch.cuda.empty_cache()
         
         predctions = predictions.detach().cpu()
-        torch.cuda.empty_cache()
+        #torch.cuda.empty_cache()
         bak_train_path = os.path.join(args.output_dir, "train_epoch_{}.csv".format(e))
         shutil.copy(save_train_path, bak_train_path)
 
