@@ -370,12 +370,15 @@ def run_aug(args, save_every_epoch=False):
             for ids, idx in zip(init_ids, masked_idx):
                 ids[idx] = MASK_id
             predictions = model(init_ids, segment_ids, input_mask)
+            print(step)
             for ids, idx, preds, seg in zip(init_ids, masked_idx, predictions, segment_ids):
+
                 pred = torch.argsort(preds)[:,-1][idx]
                 ids[idx] = pred
                 pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
                 pred_str = remove_wordpiece(pred_str)
                 csv_writer.writerow([pred_str, seg[0].item()])
+
                 pred = torch.argsort(preds)[:,-2][idx]
                 ids[idx] = pred
                 pred_str = tokenizer.convert_ids_to_tokens(ids.cpu().numpy())
