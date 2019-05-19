@@ -19,6 +19,7 @@ Thanks to "Conditional BERT Contextual Augmentation" https://arxiv.org/pdf/1812.
 | [Requirements](#Requirements) | How to install the required package |
 | [Usage](#Usage) | Quickstart examples |
 | [Modification](#Modification) | How to train data from other sources |
+| [Effect](#Effect) | The effect of augmentation using Kaggle Baseline model |
 | [GPU](#GPU) | GPU requirement and memory |
 
 ## Requirements
@@ -75,6 +76,9 @@ python train_aug.py \
   --learning_rate 5e-5 \
   --num_train_epochs 10.0 \
 ```
+
+## Effect
+The final result is tested on the [Kaggle Baseline model](https://www.kaggle.com/gali1eo/benchmark-kernel)
 
 ## GPU
 
